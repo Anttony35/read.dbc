@@ -122,6 +122,8 @@ typedef struct {
 
     uint32_t number_of_records;
 
+    uint32_t records_processed;
+
     unsigned int nfields;
 
     selected_field *fields;
@@ -321,9 +323,14 @@ static int process_record(
         }
     }
 
-    fputc('\n', ctx->output);
+        fputc('\n', ctx->output);
 
-    return ferror(ctx->output) ? 0 : 1;
+    if (ferror(ctx->output))
+        return 0;
+
+    ctx->records_processed++;
+
+    return 1;
 }
 
 /* ---------------------------------------------------------------
@@ -347,7 +354,19 @@ static int outf_select(
     unsigned char *ptr = buf;
 
     unsigned remaining = len;
+    /*
+     * The DBF header tells us how many records exist.
+     * Anything after the last complete record is trailing
+     * DBF data (normally the 0x1A EOF marker) and does not
+     * belong to a record.
+     */
 
+    if (
+        ctx->records_processed >=
+        ctx->number_of_records
+    ) {
+        return 0;
+    }
     while (remaining > 0) {
 
         size_t needed =
@@ -1120,7 +1139,10 @@ void dbc2csv_select(
      * A valid DBF stream should end exactly at a record boundary.
      */
 
-    if (ctx.record_used != 0) {
+    if (
+    ctx.records_processed !=
+    ctx.number_of_records
+) {
 
         *ret_code = -17;
 
