@@ -111,11 +111,11 @@ read.dbc.select <- function(file, select, col_types = NULL) {
       }
 
       if (type == "date") {
-        result[[col]] <- as.Date(
-          as.character(result[[col]]),
-          format = "%Y%m%d"
-        )
-      }
+  result[[col]] <- as.Date(
+    as.character(result[[col]]),
+    format = "%Y%m%d"
+  )
+}
     }
   }
 
