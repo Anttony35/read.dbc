@@ -91,4 +91,4 @@ read.dbc.select <- function(file, select) {
 
   return(result)
 }
-}
+
