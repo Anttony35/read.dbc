@@ -75,12 +75,20 @@ read.dbc.select <- function(file, select) {
     stop(error_message)
   }
 
-  result <- data.table::fread(
+    result <- data.table::fread(
     output_file,
     encoding = "Latin-1",
     data.table = FALSE,
     check.names = FALSE
   )
 
+  if ("DT_NOTIFIC" %in% names(result)) {
+    result$DT_NOTIFIC <- as.Date(
+      as.character(result$DT_NOTIFIC),
+      format = "%Y%m%d"
+    )
+  }
+
   return(result)
+}
 }
