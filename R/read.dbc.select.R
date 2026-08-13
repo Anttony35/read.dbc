@@ -10,8 +10,8 @@
 #' @return A data.frame containing only the selected variables.
 #'
 #' @export
-read.dbc.select <- function(file, select) {
-
+read.dbc.select <- function(file, select, col_types = NULL) {
+  
   if (!is.character(file) || length(file) != 1L) {
     stop("'file' must be a single character string.")
   }
@@ -88,7 +88,36 @@ read.dbc.select <- function(file, select) {
       format = "%Y%m%d"
     )
   }
+ 
+  if (!is.null(col_types)) {
+
+    for (col in names(col_types)) {
+
+      if (!col %in% names(result))
+        next
+
+      type <- col_types[[col]]
+
+      if (type == "character") {
+        result[[col]] <- as.character(result[[col]])
+      }
+
+      if (type == "numeric") {
+        result[[col]] <- as.numeric(result[[col]])
+      }
+
+      if (type == "integer") {
+        result[[col]] <- as.integer(result[[col]])
+      }
+
+      if (type == "date") {
+        result[[col]] <- as.Date(
+          as.character(result[[col]]),
+          format = "%Y%m%d"
+        )
+      }
+    }
+  }
 
   return(result)
 }
-
